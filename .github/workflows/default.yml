@@ -1,0 +1,33 @@
+name: default
+
+on:
+  push:
+    branches:
+      - '**'
+      - '!main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    strategy:
+      max-parallel: 5
+      matrix:
+        container: [ubuntu-24.04]
+    runs-on: ${{matrix.container}}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install apt-get dependencies
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential
+      - name: Build library
+        run: |
+            mkdir build && cd build 
+            cmake .. 
+            make -j
