@@ -1,1 +1,1 @@
-add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/aeron)
+add_subdirectory(aeron)
