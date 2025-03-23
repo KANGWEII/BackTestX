@@ -24,13 +24,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Debug submodules
-        run: |
-          git submodule status
-          ls -la third_party/
-          git submodule update --init --recursive
-          git submodule status
-          ls -la third_party/
       - name: Install apt-get dependencies
         run: |
             sudo apt-get update
