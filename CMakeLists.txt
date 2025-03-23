@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.10)
-project(Project VERSION 0.1.0
-                DESCRIPTION "Project description"
-                LANGUAGES CXX)
+project(BackTestX VERSION 0.1.0
+                  DESCRIPTION "Trading backtesting tool"
+                  LANGUAGES CXX)
 
 find_program(CCACHE_PROGRAM ccache)
 if (CCACHE_PROGRAM)
@@ -50,15 +50,15 @@ endif ()
 
 find_package(Threads REQUIRED)
 
-# add_subdirectory(third_party)
+add_subdirectory(third_party)
 
 ## Add libraries
-add_executable(project-template
-    src/main.cpp
-    src/project_class.cpp)
-target_link_libraries(project-template PRIVATE 
+add_executable(publisher
+    src/publisher.cpp
+    src/csv_reader.cpp)
+target_link_libraries(publisher PRIVATE
     Threads::Threads)
-target_include_directories(project-template PUBLIC
+target_include_directories(publisher PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE src)
