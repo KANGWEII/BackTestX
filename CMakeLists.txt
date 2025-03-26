@@ -57,10 +57,12 @@ add_executable(publisher
     src/publisher.cpp
     src/csv_reader.cpp)
 target_link_libraries(publisher PRIVATE
+    aeron_client
     Threads::Threads)
 target_include_directories(publisher PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
+    ${AERON_CLIENT_SOURCE_PATH}
     PRIVATE src)
 
 if (BUILD_TESTS)
