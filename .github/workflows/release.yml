@@ -1,0 +1,30 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+      - 'release-*'
+
+env:
+  VERSION: 0.1.0
+
+jobs:
+  tag-release:
+    runs-on: [ubuntu-24.04]
+    steps:
+      - name: Create tag
+        if: github.ref_name == 'main' 
+        uses: KANGWEII/github-tag-action@v6.2
+        id: tag_version
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ env.VERSION }}
+          release_branches: "main"
+          pre_release_branches: "prerelease"
+      - name: Create Github Release
+        if: github.ref_name == 'main' 
+        uses: KANGWEII/workflow-dispatch@v1.2.4
+        with:
+          workflow: release-github.yml
+          ref: ${{ steps.tag_version.outputs.new_tag }}
