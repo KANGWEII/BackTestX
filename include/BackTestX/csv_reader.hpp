@@ -6,6 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 namespace backtestx {
 class CsvReader {
@@ -16,7 +17,22 @@ class CsvReader {
   CsvReader(const CsvReader &) = delete;
   CsvReader &operator=(const CsvReader &) = delete;
 
-  std::vector<std::vector<std::string>> ReadCSV(const std::string &filename);
+  struct CsvData {
+    std::vector<std::string> headers;
+    std::vector<std::vector<std::string>> rows;
+    std::unordered_map<std::string, std::vector<std::string>> columns;
+
+    // Access a column by its header
+    const std::vector<std::string> &operator[](
+        const std::string &header) const {
+      return columns.at(header);
+    }
+  };
+
+  CsvData ReadCSV(const std::string &filename);
+
+ private:
+  CsvData data;
 };
 }  // namespace backtestx
 
