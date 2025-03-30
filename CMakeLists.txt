@@ -9,11 +9,11 @@ if (CCACHE_PROGRAM)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif ()
 
-## Project Options
+# Project Options
 option(BUILD_TESTING "Build tests" OFF)
 option(ENABLE_LOGGING "Enable logging module" ON)
 
-## Set compiler to use c++ 17 features
+# Set compiler to use c++ 17 features
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -27,17 +27,17 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
       "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif ()
 
-## Use GNUInstalDirs to install libraries into correct location on all platforms
+# Use GNUInstalDirs to install libraries into correct location on all platforms
 include(GNUInstallDirs)
 
-## Put all binary files into /bin and libraries into /lib
+# Put all binary files into /bin and libraries into /lib
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
 
 message(STATUS "Enable logging: ${ENABLE_LOGGING}")
 
-## Build tests
+# Build tests
 if (PROJECT_NAME STREQUAL CMAKE_PROJECT_NAME AND BUILD_TESTING)
   enable_testing()
   include(GoogleTest)
@@ -52,7 +52,7 @@ find_package(Threads REQUIRED)
 
 add_subdirectory(third_party)
 
-## Add libraries
+# Add libraries
 add_executable(publisher
     src/publisher.cpp
     src/csv_reader.cpp)
