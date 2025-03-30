@@ -12,7 +12,7 @@
 #include "util/CommandOptionParser.h"
 
 #include "BackTestX/csv_reader.hpp"
-#include "BackTestX/config/configuration.hpp"
+#include "BackTestX/config/aeron_config.hpp"
 
 using namespace backtestx;
 using namespace aeron;
@@ -63,8 +63,9 @@ Settings ParseCmdLine(CommandOptionParser& cp, int argc, char** argv) {
 int main(int argc, char** argv) {
   CommandOptionParser cp;
   CsvReader csv_reader;
+  CsvReader::CsvData data;
   aeron::Context context;
-  std::vector<std::vector<std::string>> data;
+  std::string row_data;
 
   cp.addOption(CommandOption(opt_help, 0, 0, "Displays help information."));
   cp.addOption(
@@ -125,13 +126,69 @@ int main(int argc, char** argv) {
     AERON_DECL_ALIGNED(buffer_t buffer, 16);
     concurrent::AtomicBuffer src_buffer(&buffer[0], buffer.size());
 
-    for (const auto& row : data) {
-      for (const auto& cell : row) {
-        std::cout << cell << "\t";
-      }
-      std::cout << std::endl;
+    const auto& date = data.columns["Date"];
+    const auto& close = data.columns["Close/Last"];
+    const auto& volume = data.columns["Volume"];
+    const auto& open = data.columns["Open"];
+    const auto& high = data.columns["High"];
+    const auto& low = data.columns["Low"];
+
+    // Wait for a subscriber to connect before sending data
+    while (!publication->isConnected() && running) {
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(configuration::DEFAULT_POLL_TIMEOUT_MS));
     }
 
+    // Loop through data and publish each row
+    for (size_t i = 0; i < date.size() && running; ++i) {
+      row_data = date[i] + "," + close[i];
+
+      // Ensure the buffer can hold the entire row
+      if (row_data.size() > buffer.size()) {
+        std::cerr << "Warning: Row data size (" << row_data.size()
+                  << ") exceeds buffer size (" << buffer.size()
+                  << "). Truncating." << std::endl;
+        row_data = row_data.substr(0, buffer.size());
+      }
+
+      // Copy data to the buffer
+      std::memcpy(buffer.data(), row_data.data(), row_data.size());
+      src_buffer.putBytes(0, buffer.data(), row_data.size());
+
+      const std::int64_t result =
+          publication->offer(src_buffer, 0, row_data.size());
+
+      if (result < 0) {
+        if (BACK_PRESSURED == result) {
+          std::cout << "Offer failed due to back pressure" << std::endl;
+        } else if (NOT_CONNECTED == result) {
+          std::cout << "Offer failed because publisher is not connected to a "
+                       "subscriber"
+                    << std::endl;
+        } else if (ADMIN_ACTION == result) {
+          std::cout << "Offer failed because of an administration action in "
+                       "the system"
+                    << std::endl;
+        } else if (PUBLICATION_CLOSED == result) {
+          std::cout << "Offer failed because publication is closed"
+                    << std::endl;
+        } else {
+          std::cout << "Offer failed due to unknown reason " << result
+                    << std::endl;
+        }
+      }
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    std::cout << "Done sending." << std::endl;
+
+    if (settings.linger_timeout_ms > 0) {
+      std::cout << "Lingering for " << settings.linger_timeout_ms
+                << " milliseconds." << std::endl;
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(settings.linger_timeout_ms));
+    }
   } catch (const CommandOptionException& e) {
     std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
     cp.displayOptionsHelp(std::cerr);
