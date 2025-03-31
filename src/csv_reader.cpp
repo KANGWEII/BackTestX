@@ -1,5 +1,8 @@
 #include "BackTestX/csv_reader.hpp"
 
+#include <algorithm>
+#include <cctype>
+
 namespace backtestx {
 CsvReader::CsvReader() {}
 
@@ -17,6 +20,11 @@ CsvReader::CsvData CsvReader::ReadCSV(const std::string& filename) {
     std::stringstream ss(line);
     std::string cell;
     while (std::getline(ss, cell, ',')) {
+      cell.erase(std::remove_if(cell.begin(), cell.end(),
+                                [](unsigned char c) {
+                                  return std::iscntrl(c) || std::isspace(c);
+                                }),
+                 cell.end());
       data.headers.push_back(cell);
       data.columns[cell] = std::vector<std::string>();
     }
@@ -29,10 +37,12 @@ CsvReader::CsvData CsvReader::ReadCSV(const std::string& filename) {
     std::string cell;
     int column_index = 0;
 
-    while (std::getline(ss, cell, ',') && column_index < data.headers.size()) {
-      row.push_back(cell);
-      data.columns[data.headers[column_index]].push_back(cell);
-      column_index++;
+    while (std::getline(ss, cell, ',')) {
+      if (column_index < data.headers.size()) {
+        row.push_back(cell);
+        data.columns[data.headers[column_index]].push_back(cell);
+        column_index++;
+      }
     }
     data.rows.push_back(row);
   }
