@@ -141,7 +141,8 @@ int main(int argc, char** argv) {
 
     // Loop through data and publish each row
     for (size_t i = 0; i < date.size() && running; ++i) {
-      row_data = date[i] + "," + close[i];
+      row_data = date[i] + "," + close[i] + "," + volume[i] + "," + open[i] +
+                 "," + high[i] + "," + low[i];
 
       // Ensure the buffer can hold the entire row
       if (row_data.size() > buffer.size()) {
@@ -178,7 +179,7 @@ int main(int argc, char** argv) {
         }
       }
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      std::this_thread::sleep_for(std::chrono::milliseconds(15));
     }
 
     std::cout << "Done sending." << std::endl;
