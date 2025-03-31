@@ -65,6 +65,17 @@ target_include_directories(publisher PUBLIC
     ${AERON_CLIENT_SOURCE_PATH}
     PRIVATE src)
 
+add_executable(subscriber
+    src/subscriber.cpp)
+target_link_libraries(subscriber PRIVATE
+    aeron_client
+    Threads::Threads)
+target_include_directories(subscriber PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${AERON_CLIENT_SOURCE_PATH}
+    PRIVATE src)
+
 if (BUILD_TESTS)
   add_subdirectory(test)
 endif ()
