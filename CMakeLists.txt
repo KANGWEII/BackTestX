@@ -69,6 +69,7 @@ add_executable(subscriber
     src/subscriber.cpp)
 target_link_libraries(subscriber PRIVATE
     aeron_client
+    ui
     Threads::Threads)
 target_include_directories(subscriber PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
