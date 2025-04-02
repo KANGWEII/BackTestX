@@ -85,8 +85,12 @@ int main(int argc, char** argv) {
     }
 
     if (settings.file_path.empty()) {
-      throw std::runtime_error("Usage: " + std::string(argv[0]) +
-                               " -f <filename>");
+      std::ostringstream ErrorMsg;
+      ErrorMsg << "\n\nUsage: " + std::string(argv[0]) + " -f <filename>\n\n"
+               << "Options:\n"
+               << "  -f, <filename>    CSV data file to publish\n"
+               << "  -h,               Display help message";
+      throw std::runtime_error(ErrorMsg.str());
     } else {
       data = csv_reader.ReadCSV(std::filesystem::path(settings.file_path));
     }
@@ -140,7 +144,7 @@ int main(int argc, char** argv) {
     }
 
     // Loop through data and publish each row
-    for (size_t i = 0; i < date.size() && running; ++i) {
+    for (size_t i = 0; i < data.rows.size() && running; ++i) {
       row_data = date[i] + "," + close[i] + "," + volume[i] + "," + open[i] +
                  "," + high[i] + "," + low[i];
 
