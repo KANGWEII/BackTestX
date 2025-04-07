@@ -33,7 +33,9 @@ target_include_directories(ui PUBLIC
     $<INSTALL_INTERFACE:include/imgui>
     $<INSTALL_INTERFACE:include/imgui/backends>)
 
-add_subdirectory(sample)
+if (IMGUI_IMPLOT_SAMPLE)
+    add_subdirectory(sample)
+endif ()
 
 install(TARGETS ui
     LIBRARY DESTINATION lib
