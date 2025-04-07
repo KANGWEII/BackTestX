@@ -8,10 +8,12 @@
 #include "util/CommandOptionParser.h"
 
 #include "BackTestX/config/aeron_config.hpp"
+#include "BackTestX/graphical/gui.hpp"
+#include "BackTestX/plot/data_handler.hpp"
 
-using namespace backtestx;
 using namespace aeron;
 using namespace aeron::util;
+using namespace backtestx;
 
 std::atomic<bool> running(true);
 
@@ -48,13 +50,13 @@ Settings parseCmdLine(CommandOptionParser& cp, int argc, char** argv) {
   return s;
 }
 
-fragment_handler_t PrintStringMessage() {
-  return [&](const AtomicBuffer& buffer, util::index_t offset,
-             util::index_t length, const Header& header) {
-    std::cout << std::string(
-                     reinterpret_cast<const char*>(buffer.buffer()) + offset,
-                     static_cast<std::size_t>(length))
-              << std::endl;
+fragment_handler_t DataPlottingHandler(
+    std::shared_ptr<backtestx::plot::DataHandler> data_handler) {
+  return [data_handler](const AtomicBuffer& buffer, util::index_t offset,
+                        util::index_t length, const Header& header) {
+    std::string data(reinterpret_cast<const char*>(buffer.buffer()) + offset,
+                     static_cast<std::size_t>(length));
+    data_handler->ProcessData(data);
   };
 }
 
@@ -71,6 +73,13 @@ int main(int argc, char** argv) {
 
     std::cout << "Subscribing to channel " << settings.channel
               << " on Stream ID " << settings.stream_id << std::endl;
+
+    auto data_handler = std::make_shared<backtestx::plot::DataHandler>();
+
+    // Start GUI thread
+    graphical::GUI gui;
+    gui.SetDataHandler(data_handler);
+    gui.StartGUIThread();
 
     aeron::Context context;
 
@@ -120,7 +129,7 @@ int main(int argc, char** argv) {
                       : std::to_string(channel_status))
               << std::endl;
 
-    FragmentAssembler fragment_assembler(PrintStringMessage());
+    FragmentAssembler fragment_assembler(DataPlottingHandler(data_handler));
     fragment_handler_t handler = fragment_assembler.handler();
     SleepingIdleStrategy idle_strategy(IDLE_SLEEP_MS);
 
@@ -128,7 +137,6 @@ int main(int argc, char** argv) {
       const int fragmentsRead = subscription->poll(handler, FRAGMENTS_LIMIT);
       idle_strategy.idle(fragmentsRead);
     }
-
   } catch (const CommandOptionException& e) {
     std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
     cp.displayOptionsHelp(std::cerr);
@@ -137,7 +145,7 @@ int main(int argc, char** argv) {
     std::cerr << "FAILED: " << e.what() << " : " << e.where() << std::endl;
     return -1;
   } catch (const std::exception& e) {
-    std::cerr << "FAILED: " << e.what() << " : " << std::endl;
+    std::cerr << "FAILED: " << e.what() << std::endl;
     return -1;
   }
 }
