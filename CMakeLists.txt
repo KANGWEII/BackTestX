@@ -12,6 +12,7 @@ endif ()
 # Project Options
 option(BUILD_TESTING "Build tests" OFF)
 option(ENABLE_LOGGING "Enable logging module" ON)
+option(IMGUI_IMPLOT_SAMPLE "Build ImGui and ImPlot sample" OFF)
 
 # Set compiler to use c++ 17 features
 set(CMAKE_CXX_STANDARD 17)
@@ -66,7 +67,9 @@ target_include_directories(publisher PUBLIC
     PRIVATE src)
 
 add_executable(subscriber
-    src/subscriber.cpp)
+    src/subscriber.cpp
+    src/graphical/gui.cpp
+    src/plot/data_handler.cpp)
 target_link_libraries(subscriber PRIVATE
     aeron_client
     ui
