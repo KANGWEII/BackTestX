@@ -9,8 +9,6 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "implot/implot.h"
-#include "implot/implot_internal.h"
 #include <GLFW/glfw3.h>
 
 #include "BackTestX/plot/data_handler.hpp"
@@ -26,9 +24,6 @@ class GUI {
   GUI(const GUI&) = delete;
   GUI& operator=(const GUI&) = delete;
 
-  template <typename T>
-  int BinarySearch(const T* arr, int l, int r, T x);
-
   static void GlfwErrorCallback(int error, const char* description);
 
   void StartGUIThread();
@@ -42,8 +37,6 @@ class GUI {
   std::shared_ptr<plot::DataHandler> data_handler_;
 
   void GUIThread();
-
-  void RenderStockChart();
 };
 }  // namespace graphical
 }  // namespace backtestx
