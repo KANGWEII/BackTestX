@@ -69,6 +69,7 @@ target_include_directories(publisher PUBLIC
 add_executable(subscriber
     src/subscriber.cpp
     src/graphical/gui.cpp
+    src/plot/candlestick.cpp
     src/plot/data_handler.cpp)
 target_link_libraries(subscriber PRIVATE
     aeron_client
@@ -77,7 +78,6 @@ target_link_libraries(subscriber PRIVATE
 target_include_directories(subscriber PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    ${AERON_CLIENT_SOURCE_PATH}
     PRIVATE src)
 
 if (BUILD_TESTS)
