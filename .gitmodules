@@ -1,0 +1,9 @@
+[submodule "third_party/aeron"]
+	path = third_party/aeron
+	url = git@github.com:aeron-io/aeron.git
+[submodule "third_party/ui/imgui"]
+	path = third_party/ui/imgui
+	url = git@github.com:ocornut/imgui.git
+[submodule "third_party/ui/implot"]
+	path = third_party/ui/implot
+	url = git@github.com:epezent/implot.git

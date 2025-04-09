@@ -1,0 +1,26 @@
+name: release-github
+
+on:
+  push:
+    tags:
+      - "*"
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: [ubuntu-24.04]
+    defaults:
+      run:
+        shell: bash
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Create release
+        uses: KANGWEII/release-action@v1.16.0
+        with:
+          generateReleaseNotes: true
+          
